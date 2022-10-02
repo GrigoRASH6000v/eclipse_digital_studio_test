@@ -1,0 +1,24 @@
+* {
+  box-sizing: border-box;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+ul {
+  padding: 0;
+  margin: 0;
+}
+li {
+  list-style: none;
+}
+.currency-option{
+  display: grid;
+  grid-template-columns: 2.2rem 0.5rem 1fr;
+  span:nth-child(2) {
+    text-align: center;
+  }
+  span:nth-child(3) {
+    padding-left: 0.3rem;
+  }
+}
