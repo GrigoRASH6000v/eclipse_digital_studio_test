@@ -1,5 +1,7 @@
 # eclipse_digital_studio_test
 
+##GitHub pages https://grigorash6000v.github.io/eclipse_digital_studio_test/
+
 ## Project setup
 ```
 npm install
