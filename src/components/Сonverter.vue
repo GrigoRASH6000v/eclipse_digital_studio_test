@@ -12,19 +12,19 @@
         />
         <el-select
           v-model="selectInput"
-          @change="() => searchInput = ''"
+          @change="() => (searchInput = '')"
           :filter-method="(text) => (searchInput = text)"
           filterable
           placeholder="Select"
           style="width: 115px"
         >
           <el-option
-            v-for="currency in filtredListOfCurrencies('searchInput')"
+            v-for="currency in filtredListOfCurrencies(searchInput)"
             :label="currency.CharCode"
             :key="currency.ID"
             :value="currency.ID"
           >
-            <div class="converter__option">
+            <div class="currency-option">
               <span>{{ currency.CharCode }}</span>
               <span>|</span>
               <span>{{ currency.Name }}</span>
@@ -51,13 +51,13 @@
         <el-select
           :filter-method="(text) => (searchOutput = text)"
           v-model="selectOutput"
-          @change="() => searchOutput = ''"
+          @change="() => (searchOutput = '')"
           filterable
           placeholder="Select"
           style="width: 115px"
         >
           <el-option
-            v-for="currency in filtredListOfCurrencies('searchOutput')"
+            v-for="currency in filtredListOfCurrencies(searchOutput)"
             :key="currency.ID"
             :value="currency.ID"
             :label="currency.CharCode"
@@ -75,43 +75,46 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import getCurrencyById from "@/helpers/getCurrencyById";
-import filtredListOfCurrencies from '@/helpers/filtredListOfCurrencies'
-import convert from '@/services/convert'
+import filtredListOfCurrencies from "@/helpers/filtredListOfCurrencies";
+import convert from "@/services/convert";
+import { ref, computed } from "vue";
 export default {
-  data() {
-    return {
-      input: 1,
-      selectInput: "1",
-      selectOutput: "",
-      searchInput: "",
-      searchOutput: "",
+  setup() {
+    let input = ref(1);
+    let selectInput = ref("1");
+    let selectOutput = ref("");
+    let searchInput = ref("");
+    let searchOutput = ref("");
+
+    const reverseHandler = () => {
+      if (!selectOutput.value) return;
+      const a = selectOutput.value;
+      selectOutput.value = selectInput.value;
+      selectInput.value = a;
     };
-  },
-  computed: {
-    output() {
-      if (!this.selectOutput) return 1;
-      const currencyOutput = getCurrencyById(this.selectOutput, this.listOfCurrencies());
-      if (this.selectInput === "1")
-        return (this.input / currencyOutput.Value).toFixed(2);
-      const currencyInput = getCurrencyById(this.selectInput, this.listOfCurrencies());
-      if (this.selectOutput === "1") {
-        return (this.input * currencyInput.Value).toFixed(2);
+
+    const output = computed(() => {
+      if (!selectOutput.value) return 1;
+      const currencyOutput = getCurrencyById(selectOutput.value);
+      if (selectInput.value === "1")
+        return (input.value / currencyOutput.Value).toFixed(2);
+      const currencyInput = getCurrencyById(selectInput.value);
+      if (selectOutput.value === "1") {
+        return (input.value * currencyInput.Value).toFixed(2);
       }
-      return this.convert(this.input, currencyInput, currencyOutput)
-    },
-  },
-  methods: {
-    ...mapGetters(["listOfCurrencies"]),
-    convert,
-    filtredListOfCurrencies,
-    reverseHandler() {
-      if (!this.selectOutput) return;
-      const a = this.selectOutput;
-      this.selectOutput = this.selectInput;
-      this.selectInput = a;
-    },
+      return convert(input.value, currencyInput, currencyOutput);
+    });
+    return {
+      input,
+      selectInput,
+      selectOutput,
+      searchInput,
+      searchOutput,
+      output,
+      reverseHandler,
+      filtredListOfCurrencies,
+    };
   },
 };
 </script>

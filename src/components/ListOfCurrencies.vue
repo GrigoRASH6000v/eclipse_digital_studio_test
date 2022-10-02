@@ -2,9 +2,9 @@
   <section class="list-of-currencies">
     <h1>Список валют</h1>
     <el-table
-      :data="currentCurrencies('searchTable')"
+      :data="currentCurrencies(searchTable)"
       style="width: 100%"
-      v-if="listOfCurrencies()"
+      v-if="listOfCurrencies"
     >
       <el-table-column
         prop="CharCode"
@@ -38,7 +38,7 @@
               placeholder="Select"
             >
               <el-option
-                v-for="currency in filtredListOfCurrencies('searchCurrency')"
+                v-for="currency in filtredListOfCurrencies(searchCurrency)"
                 :label="currency.CharCode"
                 :key="currency.ID"
                 :value="currency.ID"
@@ -79,26 +79,24 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import getCurrencyById from "@/helpers/getCurrencyById"
-import filtredListOfCurrencies from '@/helpers/filtredListOfCurrencies'
+import { ref } from "vue";
+import { useStore } from "vuex";
+import getCurrencyById from "@/helpers/getCurrencyById";
+import filtredListOfCurrencies from "@/helpers/filtredListOfCurrencies";
 import _ from "lodash";
 export default {
-  data() {
-    return {
-      searchCurrency: "",
-      searchTable: "",
-      selectedcurrency: "1",
-    };
-  },
-  methods: {
-    ...mapGetters(["listOfCurrencies"]),
-    filtredListOfCurrencies,
-    currentCurrencies(searchName) {
-      if (this.selectedcurrency === "1")
-        return this.filtredListOfCurrencies(searchName).filter((c) => c.ID !== "1");
-      const { Value, ID } = getCurrencyById(this.selectedcurrency, this.listOfCurrencies());
-      const cloneArray = _.cloneDeep(this.filtredListOfCurrencies(searchName));
+  setup() {
+    const store = useStore();
+    let searchCurrency = ref("");
+    let searchTable = ref("");
+    let selectedcurrency = ref("1");
+    const { listOfCurrencies } = store.getters;
+
+    const currentCurrencies = (search) => {
+      if (selectedcurrency.value === "1")
+        return filtredListOfCurrencies(search).filter((c) => c.ID !== "1");
+      const { Value, ID } = getCurrencyById(selectedcurrency.value);
+      const cloneArray = _.cloneDeep(filtredListOfCurrencies(search));
       return cloneArray
         .map((c) => {
           if (c.ID === "1") {
@@ -109,16 +107,21 @@ export default {
           return c;
         })
         .filter((c) => c.ID !== ID);
-    },
-    getCourse(scope) {
-      return (scope.row.Value - scope.row.Previous).toFixed(4);
-    },
-    courseIsLess(scope) {
-      return this.getCourse(scope) < 0;
-    },
-  },
-  created() {
-    this.$store.dispatch("getListOfCurrencies");
+    };
+    const getCourse = (scope) =>
+      (scope.row.Value - scope.row.Previous).toFixed(4);
+    const courseIsLess = (scope) => getCourse(scope) < 0;
+    
+    return {
+      searchCurrency,
+      searchTable,
+      selectedcurrency,
+      listOfCurrencies,
+      filtredListOfCurrencies,
+      currentCurrencies,
+      courseIsLess,
+      getCourse,
+    };
   },
 };
 </script>
