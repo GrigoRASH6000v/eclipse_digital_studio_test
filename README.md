@@ -2,6 +2,8 @@
 
 ## GitHub pages https://grigorash6000v.github.io/eclipse_digital_studio_test/
 
+## Ветка с composition API - composition
+
 ## Project setup
 ```
 npm install
